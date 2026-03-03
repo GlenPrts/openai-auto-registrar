@@ -36,7 +36,15 @@
                 </div>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-400">邮箱:</span>
+                    <span id="email-mode-display" class="text-xs text-blue-400">Mail.tm</span>
+                </div>
+                <select id="email-mode-select" class="bg-gray-700 border-none rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500">
+                    <option value="mailtm">Mail.tm 临时邮箱</option>
+                    <option value="imap">IMAP 配置邮箱</option>
+                </select>
                 <button id="btn-start" onclick="toggleProcess()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-medium transition-all">启动服务</button>
             </div>
         </div>
@@ -86,18 +94,22 @@
 
                 // Update Badge
                 const badge = document.getElementById('status-badge');
+                const emailModeDisplay = document.getElementById('email-mode-display');
                 if (isRunning) {
                     badge.innerText = '运行中';
                     badge.className = 'px-2 py-0.5 rounded text-xs bg-green-900 text-green-300';
                     document.getElementById('btn-start').innerText = '停止服务';
                     document.getElementById('btn-start').className = 'bg-red-600 hover:bg-red-500 text-white px-6 py-2 rounded-lg font-medium transition-all';
                     document.getElementById('proxy-input').disabled = true;
+                    document.getElementById('email-mode-select').disabled = true;
+                    emailModeDisplay.innerText = data.email_mode === 'imap' ? 'IMAP' : 'Mail.tm';
                 } else {
                     badge.innerText = '已停止';
                     badge.className = 'px-2 py-0.5 rounded text-xs bg-gray-700 text-gray-300';
                     document.getElementById('btn-start').innerText = '启动服务';
                     document.getElementById('btn-start').className = 'bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-medium transition-all';
                     document.getElementById('proxy-input').disabled = false;
+                    document.getElementById('email-mode-select').disabled = false;
                 }
 
                 // Update Stats
@@ -121,7 +133,8 @@
 
             if (!isRunning) {
                 const proxy = document.getElementById('proxy-input').value;
-                await fetch(`/api/start?proxy=${encodeURIComponent(proxy)}`, { method: 'POST' });
+                const emailMode = document.getElementById('email-mode-select').value;
+                await fetch(`/api/start?proxy=${encodeURIComponent(proxy)}&email_mode=${encodeURIComponent(emailMode)}`, { method: 'POST' });
             } else {
                 await fetch('/api/stop', { method: 'POST' });
             }

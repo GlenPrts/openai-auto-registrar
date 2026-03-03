@@ -12,6 +12,7 @@ import hashlib
 import base64
 import threading
 import argparse
+import imaplib
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlparse, parse_qs, urlencode, quote
 from dataclasses import dataclass
@@ -21,6 +22,54 @@ import urllib.request
 import urllib.error
 
 from curl_cffi import requests
+
+# Token 保存目录
+TOKEN_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tokens")
+
+# IMAP 支持
+IMAP_TOOLS_AVAILABLE = False
+MailBox = None
+
+try:
+    from imap_tools import MailBox as _MailBox
+
+    MailBox = _MailBox
+    IMAP_TOOLS_AVAILABLE = True
+except ImportError:
+    pass
+
+# ==========================================
+# 邮箱配置管理
+# ==========================================
+
+# IMAP 配置文件路径
+IMAP_CONFIG_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "config.json"
+)
+
+
+def load_imap_config() -> Optional[Dict[str, Any]]:
+    """加载 IMAP 配置。"""
+    if not os.path.exists(IMAP_CONFIG_PATH):
+        print(f"[Warning] IMAP 配置文件不存在: {IMAP_CONFIG_PATH}")
+        return None
+
+    try:
+        with open(IMAP_CONFIG_PATH, "r", encoding="utf-8") as f:
+            config = json.load(f)
+        return config
+    except Exception as e:
+        print(f"[Error] 读取 IMAP 配置失败: {e}")
+        return None
+
+
+def generate_imap_email(config: Dict[str, Any]) -> str:
+    """基于配置生成随机 IMAP 邮箱地址。"""
+    domain = config.get("domain", "example.com")
+    prefix = config.get("email_prefix", "auto")
+    random_suffix = "".join(random.choices(string.digits, k=5))
+    return f"{prefix}{random_suffix}@{domain}"
+
 
 # ==========================================
 # Mail.tm 临时邮箱 API
@@ -115,6 +164,189 @@ def get_email_and_token(proxies: Any = None) -> tuple[str, str]:
     except Exception as e:
         print(f"[Error] 请求 Mail.tm API 出错: {e}")
         return "", ""
+
+
+# ==========================================
+# IMAP 邮箱验证码获取
+# ==========================================
+
+
+def build_oauth2_string(user: str, access_token: str) -> str:
+    """构建 XOAUTH2 认证字符串。"""
+    auth_string = f"user={user}\x01auth=Bearer {access_token}\x01\x01"
+    return auth_string
+
+
+def refresh_outlook_token(config: Dict[str, Any]) -> Optional[str]:
+    """刷新 Outlook/Microsoft OAuth2 Token。"""
+    refresh_token = config.get("imap_oauth2_refresh_token", "")
+    client_id = config.get("imap_oauth2_client_id", "")
+    tenant_id = config.get("imap_oauth2_tenant_id", "")
+    client_secret = config.get("imap_oauth2_client_secret", "")
+
+    if not refresh_token or not client_id or not tenant_id:
+        return None
+
+    token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+    data = {
+        "grant_type": "refresh_token",
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "refresh_token": refresh_token,
+        "scope": "https://outlook.office.com/IMAP.AccessAsUser.All offline_access",
+    }
+
+    try:
+        resp = requests.post(token_url, json=data, timeout=30)
+        if resp.status_code != 200:
+            print(f"[Error] Token 刷新失败: {resp.status_code}")
+            return None
+
+        token_data = resp.json()
+        return token_data.get("access_token")
+    except Exception as e:
+        print(f"[Error] Token 刷新异常: {e}")
+        return None
+
+
+def get_imap_oauth2_token(config: Dict[str, Any]) -> Optional[str]:
+    """获取有效的 OAuth2 Token（如有必要则刷新）。"""
+    auth_mode = config.get("imap_auth_mode", "password")
+    if auth_mode != "oauth2":
+        return None
+
+    token = config.get("imap_oauth2_token", "")
+    expires_at = config.get("imap_oauth2_token_expires_at", 0)
+
+    # 检查是否即将过期（5分钟缓冲）
+    current_time = int(time.time())
+    if expires_at > current_time + 300:
+        return token
+
+    # 需要刷新
+    print("[*] OAuth2 Token 即将过期，尝试刷新...")
+    new_token = refresh_outlook_token(config)
+    return new_token if new_token else token
+
+
+def create_imap_mailbox(config: Dict[str, Any]):
+    """根据配置创建 IMAP 连接。"""
+    if not IMAP_TOOLS_AVAILABLE or MailBox is None:
+        raise RuntimeError("未安装 imap-tools，请运行: pip install imap-tools")
+
+    host = config.get("imap_host", "")
+    port = config.get("imap_port", 993)
+    user = config.get("imap_user", "")
+    password = config.get("imap_pass", "")
+    auth_mode = config.get("imap_auth_mode", "password")
+
+    if auth_mode == "oauth2":
+        access_token = get_imap_oauth2_token(config)
+        if not access_token:
+            raise RuntimeError("OAuth2 Token 无效")
+
+        client = imaplib.IMAP4_SSL(host, port=port)
+        auth_string = build_oauth2_string(user, access_token)
+        client.authenticate("XOAUTH2", lambda _: auth_string.encode())
+        client.select("INBOX")
+        mailbox = MailBox(host, port=port)
+        mailbox.client = client
+        return mailbox
+
+    return MailBox(host, port=port).login(user, password)
+
+
+def get_code_from_imap(config: Dict[str, Any], email: str, proxies: Any = None) -> str:
+    """通过 IMAP 获取 OpenAI 验证码。"""
+    if not IMAP_TOOLS_AVAILABLE:
+        print("[Error] 未安装 imap-tools，无法使用 IMAP 邮箱")
+        return ""
+
+    print(f"[*] 正在等待 IMAP 邮箱 {email} 的验证码...", end="", flush=True)
+
+    email_lower = email.lower()
+    start_time = time.time()
+    timeout = 120  # 2分钟超时
+
+    try:
+        mailbox = create_imap_mailbox(config)
+        seen_uids = set()
+
+        while time.time() - start_time < timeout:
+            print(".", end="", flush=True)
+
+            # 保持连接活跃
+            try:
+                mailbox.client.noop()
+            except Exception:
+                pass
+
+            for msg in mailbox.fetch(limit=10, reverse=True):
+                if msg.uid in seen_uids:
+                    continue
+                seen_uids.add(msg.uid)
+
+                # 检查邮件时间（只处理最近10分钟的邮件）
+                if msg.date and (time.time() - msg.date.timestamp()) > 600:
+                    continue
+
+                # 检查发件人
+                if msg.from_ and "openai" not in msg.from_.lower():
+                    continue
+
+                # 检查收件人匹配
+                recipient_matched = any(email_lower in t.lower() for t in msg.to)
+
+                # 检查转发头
+                if not recipient_matched:
+                    for header_name in (
+                        "delivered-to",
+                        "x-original-to",
+                        "x-forwarded-to",
+                    ):
+                        vals = msg.headers.get(header_name) or []
+                        if any(email_lower in v.lower() for v in vals):
+                            recipient_matched = True
+                            break
+
+                # 检查正文
+                if not recipient_matched:
+                    body_check = msg.text or msg.html or ""
+                    if email_lower in body_check.lower():
+                        recipient_matched = True
+
+                if not recipient_matched:
+                    continue
+
+                # 查找验证码
+                body = msg.text or msg.html or ""
+                match = re.search(r"\b(\d{6})\b", body)
+                if match:
+                    code = match.group(1)
+                    print(f" 抓到啦! 验证码: {code}")
+                    # 删除邮件
+                    try:
+                        mailbox.delete(msg.uid)
+                        mailbox.client.expunge()
+                    except Exception:
+                        pass
+                    return code
+
+            time.sleep(3)
+
+        print(" 超时，未收到验证码")
+        return ""
+
+    except Exception as e:
+        print(f"\n[Error] IMAP 获取验证码失败: {e}")
+        return ""
+
+
+def get_email_and_token_imap(config: Dict[str, Any]) -> tuple[str, str]:
+    """使用 IMAP 配置生成邮箱（Token 是配置本身）。"""
+    email = generate_imap_email(config)
+    # 返回邮箱和配置标识（用作 token）
+    return email, "imap_config"
 
 
 def get_oai_code(token: str, email: str, proxies: Any = None) -> str:
@@ -423,7 +655,7 @@ def submit_callback_url(
 # ==========================================
 
 
-def run(proxy: Optional[str]) -> Optional[str]:
+def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
     proxies: Any = None
     if proxy:
         proxies = {"http": proxy, "https": proxy}
@@ -442,10 +674,26 @@ def run(proxy: Optional[str]) -> Optional[str]:
         print(f"[Error] 网络连接检查失败: {e}")
         return None
 
-    email, dev_token = get_email_and_token(proxies)
-    if not email or not dev_token:
-        return None
-    print(f"[*] 成功获取 Mail.tm 邮箱与授权: {email}")
+    # 根据邮箱模式获取邮箱和验证码获取方式
+    imap_config = None
+    if email_mode == "imap":
+        imap_config = load_imap_config()
+        if not imap_config:
+            print("[Error] 无法加载 IMAP 配置，回退到 Mail.tm")
+            email_mode = "mailtm"
+
+    dev_token: str = ""
+    if email_mode == "imap":
+        if imap_config is None:
+            print("[Error] IMAP 配置未加载")
+            return None
+        email, dev_token = get_email_and_token_imap(imap_config)
+        print(f"[*] 使用 IMAP 邮箱: {email}")
+    else:
+        email, dev_token = get_email_and_token(proxies)
+        if not email or not dev_token:
+            return None
+        print(f"[*] 成功获取 Mail.tm 邮箱与授权: {email}")
 
     oauth = generate_oauth_url()
     url = oauth.auth_url
@@ -500,7 +748,11 @@ def run(proxy: Optional[str]) -> Optional[str]:
         )
         print(f"[*] 验证码发送状态: {otp_resp.status_code}")
 
-        code = get_oai_code(dev_token, email, proxies)
+        # 根据邮箱模式获取验证码
+        if email_mode == "imap" and imap_config is not None:
+            code = get_code_from_imap(imap_config, email, proxies)
+        else:
+            code = get_oai_code(dev_token, email, proxies)
         if not code:
             return None
 
@@ -606,6 +858,12 @@ def main() -> None:
     parser.add_argument(
         "--sleep-max", type=int, default=30, help="循环模式最长等待秒数"
     )
+    parser.add_argument(
+        "--email-mode",
+        choices=["mailtm", "imap"],
+        default="mailtm",
+        help="邮箱模式: mailtm (默认, 使用 Mail.tm 临时邮箱) 或 imap (使用 @openai-auto-register 的 IMAP 配置)",
+    )
     args = parser.parse_args()
 
     sleep_min = max(1, args.sleep_min)
@@ -613,6 +871,7 @@ def main() -> None:
 
     count = 0
     print("[Info] Yasal's Seamless OpenAI Auto-Registrar Started for ZJH")
+    print(f"[*] 邮箱模式: {args.email_mode}")
 
     while True:
         count += 1
@@ -621,7 +880,7 @@ def main() -> None:
         )
 
         try:
-            token_json = run(args.proxy)
+            token_json = run(args.proxy, args.email_mode)
 
             if token_json:
                 try:
@@ -630,12 +889,14 @@ def main() -> None:
                 except Exception:
                     fname_email = "unknown"
 
+                os.makedirs(TOKEN_DIR, exist_ok=True)
                 file_name = f"token_{fname_email}_{int(time.time())}.json"
+                file_path = os.path.join(TOKEN_DIR, file_name)
 
-                with open(file_name, "w", encoding="utf-8") as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(token_json)
 
-                print(f"[*] 成功! Token 已保存至: {file_name}")
+                print(f"[*] 成功! Token 已保存至: {file_path}")
             else:
                 print("[-] 本次注册失败。")
 

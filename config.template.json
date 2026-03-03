@@ -1,0 +1,22 @@
+{
+    "domain": "example.com",
+    "imap_host": "imap.example.com",
+    "imap_port": 993,
+    "imap_user": "your_email@example.com",
+    "imap_pass": "your_app_password",
+    "imap_auth_mode": "password",
+    "imap_oauth2_token": "",
+    "imap_oauth2_refresh_token": "",
+    "imap_oauth2_token_expires_at": 0,
+    "imap_oauth2_client_id": "",
+    "imap_oauth2_tenant_id": "",
+    "imap_oauth2_client_secret": "",
+    "email_prefix": "auto",
+    "run_count": 0,
+    "run_interval": 0,
+    "token_dir": "./tokens",
+    "headless": false,
+    "log_enabled": false,
+    "log_dir": "./logs",
+    "proxy": ""
+}

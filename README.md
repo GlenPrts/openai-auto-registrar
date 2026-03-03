@@ -12,7 +12,7 @@
 
 ### 🤖 核心注册引擎 (`singup.py`)
 - **全自动流程**: 自动生成邮箱、接收验证码、绕过 Sentinel 安全检测、填写个人资料。
-- **Mail.tm 集成**: 使用临时邮箱 API，无需手动准备邮箱账号。
+- **双邮箱模式**: 支持 Mail.tm 临时邮箱 和 IMAP 配置邮箱（Outlook/Gmail 等）。
 - **指纹模拟**: 深度集成 `curl-cffi`，完美模拟浏览器指纹，降低被拦截风险。
 - **智能重试**: 内置错误处理与随机延迟，提高批量注册成功率。
 
@@ -30,7 +30,7 @@
 - **后端**: FastAPI, Uvicorn, Python 3.14+
 - **前端**: HTML5, Tailwind CSS, JavaScript (Fetch API)
 - **网络层**: `curl_cffi` (用于绕过 TLS/指纹检测)
-- **邮件服务**: Mail.tm API
+- **邮件服务**: Mail.tm API / IMAP (OAuth2/密码认证)
 
 ---
 
@@ -62,9 +62,41 @@ uv run python app.py
 ## ⚙️ 使用说明
 
 1. **设置代理**: 由于 OpenAI 的地区限制，建议在面板中输入支持访问 OpenAI 的代理地址（如 `http://127.0.0.1:7890`）。
-2. **启动服务**: 点击“启动服务”按钮，系统将开启后台线程循环执行注册逻辑。
-3. **获取结果**: 注册成功后的 Token 会以 JSON 格式保存在项目根目录下，文件名格式为 `token_邮箱名_时间戳.json`。
-4. **导出数据**: 使用右侧面板的“打包下载全部”功能，可以一次性导出所有账号信息。
+2. **选择邮箱模式**: 
+   - **Mail.tm**: 使用临时邮箱，无需配置
+   - **IMAP**: 使用自己的邮箱域名，需配置 `config.json`（详见 [IMAP_CONFIG.md](IMAP_CONFIG.md)）
+3. **启动服务**: 点击“启动服务”按钮，系统将开启后台线程循环执行注册逻辑。
+4. **获取结果**: 注册成功后的 Token 保存在 `tokens/` 目录下，文件名格式为 `token_邮箱名_时间戳.json`。
+5. **导出数据**: 使用右侧面板的“打包下载全部”功能，可以一次性导出所有账号信息。
+
+### IMAP 邮箱配置
+
+如需使用自己的域名邮箱（Catch-all），请：
+
+1. 复制配置模板：
+   ```bash
+   cp config.template.json config.json
+   ```
+
+2. 编辑 `config.json`，填入你的 IMAP 信息
+
+3. 详细配置说明请参考 [IMAP_CONFIG.md](IMAP_CONFIG.md)
+
+### 命令行使用
+
+```bash
+# Web 面板
+uv run python app.py
+
+# 命令行模式（Mail.tm 邮箱）
+uv run python singup.py --once
+
+# 命令行模式（IMAP 邮箱）
+uv run python singup.py --email-mode imap --once
+
+# 使用代理
+uv run python singup.py --email-mode imap --proxy http://127.0.0.1:7890
+```
 
 ---
 

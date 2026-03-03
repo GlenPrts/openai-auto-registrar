@@ -11,5 +11,9 @@ wheels/
 
 # Generated tokens and archives
 token_*.json
+tokens/
 *.zip
 *.lock
+
+# Configuration files with sensitive data
+config.json
