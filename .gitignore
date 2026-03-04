@@ -12,8 +12,11 @@ wheels/
 # Generated tokens and archives
 token_*.json
 tokens/
+cpa_wokers/
+.cpa_work_dir
 *.zip
 *.lock
 
 # Configuration files with sensitive data
 config.json
+cpa_config.json
