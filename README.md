@@ -13,7 +13,10 @@
 ### 🤖 核心注册引擎 (`singup.py`)
 - **全自动流程**: 自动生成邮箱、接收验证码、绕过 Sentinel 安全检测、填写个人资料。
 - **双邮箱模式**: 支持 Mail.tm 临时邮箱 和 IMAP 配置邮箱（Outlook/Gmail 等）。
-- **指纹模拟**: 深度集成 `curl-cffi`，完美模拟浏览器指纹，降低被拦截风险。
+- **动态指纹模拟**: 自动从 `curl_cffi` 获取支持的浏览器指纹（Chrome/Firefox/Safari/Edge 等 30+ 版本），每次注册随机轮换，有效规避检测。
+- **随机用户资料**: 自动生成真实姓名和合理生日范围，避免硬编码指纹被批量识别。
+- **智能邮箱前缀**: 7 种命名模式 + 随机后缀，生成自然的邮箱地址。
+- **浏览器行为模拟**: 完整模拟 `Accept-Language`、`Sec-CH-UA`、`Sec-Fetch-*` 等真实浏览器请求头。
 - **智能重试**: 内置错误处理与随机延迟，提高批量注册成功率。
 
 ### 📊 Web 控制面板 (`app.py`)
@@ -80,7 +83,15 @@ uv run python app.py
 
 2. 编辑 `config.json`，填入你的 IMAP 信息
 
-3. 详细配置说明请参考 [IMAP_CONFIG.md](IMAP_CONFIG.md)
+3. 配置项说明：
+   - `domain`: 你的域名（如 `example.com`）
+   - `imap_host`: IMAP 服务器地址（如 `outlook.office365.com`）
+   - `imap_port`: IMAP 端口（通常是 993）
+   - `imap_user`: 邮箱地址
+   - `imap_auth_mode`: 认证模式，`password` 或 `oauth2`
+   - `email_prefix`: 可选，邮箱前缀（留空则自动生成随机前缀）
+
+4. 详细配置说明请参考 [IMAP_CONFIG.md](IMAP_CONFIG.md)
 
 ### 命令行使用
 
@@ -96,7 +107,12 @@ uv run python singup.py --email-mode imap --once
 
 # 使用代理
 uv run python singup.py --email-mode imap --proxy http://127.0.0.1:7890
+
+# 循环模式（自动间隔随机时间注册）
+uv run python singup.py --sleep-min 10 --sleep-max 60
 ```
+
+**注意**: 生成的账户使用 **无密码 OAuth 模式**，通过 `access_token` + `refresh_token` 保持登录状态，这是 OpenAI Codex CLI 的标准做法。
 
 ---
 

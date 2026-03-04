@@ -32,7 +32,7 @@
 | `imap_oauth2_client_id` | string | OAuth2 Client ID（用于自动刷新 Token） |
 | `imap_oauth2_client_secret` | string | OAuth2 Client Secret（Azure AD 机密客户端需要） |
 | `imap_oauth2_tenant_id` | string | OAuth2 Tenant ID（Azure AD 需要，如 Outlook） |
-| `email_prefix` | string | 注册邮箱前缀，生成格式为 `{prefix}{uuid}@domain` |
+| `email_prefix` | string | 注册邮箱前缀，留空则自动生成随机前缀（推荐） |
 
 ## 认证模式
 
@@ -56,6 +56,8 @@
 **注意**：
 - Gmail 需要使用应用专用密码（App Password），不是登录密码
 - 在 Google 账户设置中开启两步验证后，才能创建应用专用密码
+- `email_prefix` 留空时，脚本会自动生成随机邮箱前缀（更具随机性，推荐）
+- 如需固定前缀，可设置如 `"user"`，生成格式为 `user{随机后缀}@domain`
 
 ### OAuth2 模式
 
@@ -64,17 +66,20 @@
 #### Outlook OAuth2 配置步骤
 
 1. 在 `config.json` 中填写基础信息：
-   ```json
-   {
-       "domain": "yourdomain.onmicrosoft.com",
-       "imap_host": "outlook.office365.com",
-       "imap_port": 993,
-       "imap_user": "admin@yourdomain.onmicrosoft.com",
-       "imap_pass": "",
-       "imap_auth_mode": "oauth2",
-       "email_prefix": "user"
-   }
-   ```
+    ```json
+    {
+        "domain": "yourdomain.onmicrosoft.com",
+        "imap_host": "outlook.office365.com",
+        "imap_port": 993,
+        "imap_user": "admin@yourdomain.onmicrosoft.com",
+        "imap_pass": "",
+        "imap_auth_mode": "oauth2",
+        "email_prefix": "",
+        "imap_oauth2_client_id": "your-client-id",
+        "imap_oauth2_tenant_id": "your-tenant-id",
+        "imap_oauth2_client_secret": "your-client-secret"
+    }
+    ```
 
 2. 获取 OAuth2 Token：
    ```bash
