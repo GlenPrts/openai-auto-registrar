@@ -84,6 +84,7 @@ BROWSER_FINGERPRINTS = get_supported_fingerprints()
 # 邮箱前缀词汇库 - 用于生成真实的邮箱前缀
 # ==========================================
 EMAIL_PREFIX_WORDS = [
+    # 人名
     "alex",
     "john",
     "mike",
@@ -111,6 +112,99 @@ EMAIL_PREFIX_WORDS = [
     "ella",
     "scarlett",
     "grace",
+    "lucas",
+    "henry",
+    "benjamin",
+    "alexander",
+    "matthew",
+    "anthony",
+    "mark",
+    "steven",
+    "kevin",
+    "brian",
+    "george",
+    "edward",
+    "ronald",
+    "timothy",
+    "jason",
+    "jeffrey",
+    "ryan",
+    "jacob",
+    "gary",
+    "nicholas",
+    "eric",
+    "jonathan",
+    "stephen",
+    "larry",
+    "justin",
+    "scott",
+    "brandon",
+    "raymond",
+    "gregory",
+    "samuel",
+    "benjamin",
+    "patrick",
+    "frank",
+    "alexander",
+    "jack",
+    "dylan",
+    "nathan",
+    "gabriel",
+    "carter",
+    "jayden",
+    "luke",
+    "isaac",
+    "jaxon",
+    "mateo",
+    "sebastian",
+    "hunter",
+    "jordan",
+    "zachary",
+    "adam",
+    "austin",
+    # 姓氏作为前缀
+    "smith",
+    "johnson",
+    "williams",
+    "brown",
+    "jones",
+    "garcia",
+    "miller",
+    "davis",
+    "rodriguez",
+    "martinez",
+    "hernandez",
+    "lopez",
+    "gonzalez",
+    "wilson",
+    "anderson",
+    "thomas",
+    "taylor",
+    "moore",
+    "jackson",
+    "martin",
+    "lee",
+    "perez",
+    "thompson",
+    "white",
+    "harris",
+    "sanchez",
+    "clark",
+    "ramirez",
+    "lewis",
+    "robinson",
+    "walker",
+    "young",
+    "allen",
+    "king",
+    "wright",
+    "scott",
+    "torres",
+    "nguyen",
+    "hill",
+    "flores",
+    "green",
+    # 技术词汇
     "tech",
     "code",
     "dev",
@@ -119,6 +213,30 @@ EMAIL_PREFIX_WORDS = [
     "ml",
     "cloud",
     "web",
+    "app",
+    "soft",
+    "net",
+    "sys",
+    "api",
+    "bot",
+    "script",
+    "hack",
+    "crypto",
+    "digital",
+    "cyber",
+    "pixel",
+    "binary",
+    "quantum",
+    "neural",
+    "deep",
+    "auto",
+    "smart",
+    "nano",
+    "meta",
+    "cyber",
+    "virtual",
+    "online",
+    # 工作室/公司类
     "studio",
     "hub",
     "lab",
@@ -126,20 +244,27 @@ EMAIL_PREFIX_WORDS = [
     "zone",
     "base",
     "core",
+    "center",
+    "works",
+    "foundry",
+    "forge",
+    "works",
+    "solutions",
+    "systems",
+    "group",
+    # 通用词
     "user",
     "admin",
-    "test",
-    "demo",
-    "beta",
-    "alpha",
-    "prod",
+    "member",
+    "account",
+    "profile",
     "hello",
     "hi",
+    "welcome",
+    "greetings",
     "hey",
     "yo",
     "sup",
-    "greetings",
-    "welcome",
     "cool",
     "nice",
     "awesome",
@@ -147,6 +272,65 @@ EMAIL_PREFIX_WORDS = [
     "super",
     "ultra",
     "mega",
+    "hyper",
+    "pro",
+    "max",
+    "plus",
+    # 自然/抽象词
+    "star",
+    "sky",
+    "ocean",
+    "forest",
+    "mountain",
+    "river",
+    "fire",
+    "ice",
+    "thunder",
+    "storm",
+    "light",
+    "shadow",
+    "dream",
+    "hope",
+    "joy",
+    "peace",
+    # 颜色
+    "blue",
+    "red",
+    "green",
+    "black",
+    "white",
+    "gold",
+    "silver",
+    "purple",
+    # 动物
+    "wolf",
+    "fox",
+    "bear",
+    "eagle",
+    "hawk",
+    "lion",
+    "tiger",
+    "dragon",
+    # 随机音节
+    "nex",
+    "vex",
+    "zex",
+    "pix",
+    "mix",
+    "fix",
+    "hex",
+    "dex",
+    "rex",
+    "tex",
+    "lux",
+    "flux",
+    "crux",
+    "trux",
+    "brux",
+    "drux",
+    "grux",
+    "frux",
+    "prux",
 ]
 
 # 常见名字库
@@ -164,6 +348,67 @@ FIRST_NAMES = [
     "Daniel",
     "Matthew",
     "Anthony",
+    "Mark",
+    "Steven",
+    "Kevin",
+    "Brian",
+    "George",
+    "Edward",
+    "Ronald",
+    "Timothy",
+    "Jason",
+    "Jeffrey",
+    "Ryan",
+    "Jacob",
+    "Gary",
+    "Nicholas",
+    "Eric",
+    "Jonathan",
+    "Stephen",
+    "Larry",
+    "Justin",
+    "Scott",
+    "Brandon",
+    "Raymond",
+    "Gregory",
+    "Samuel",
+    "Patrick",
+    "Frank",
+    "Alexander",
+    "Jack",
+    "Dylan",
+    "Nathan",
+    "Gabriel",
+    "Carter",
+    "Jayden",
+    "Luke",
+    "Isaac",
+    "Jaxon",
+    "Mateo",
+    "Sebastian",
+    "Hunter",
+    "Jordan",
+    "Zachary",
+    "Adam",
+    "Austin",
+    "Elijah",
+    "Caleb",
+    "Owen",
+    "Cameron",
+    "Levi",
+    "Christian",
+    "Isaiah",
+    "Thomas",
+    "Charles",
+    "Aaron",
+    "Eli",
+    "Connor",
+    "Jeremiah",
+    "Josiah",
+    "Hudson",
+    "Lincoln",
+    "Adrian",
+    "Colton",
     "Emma",
     "Olivia",
     "Ava",
@@ -177,19 +422,48 @@ FIRST_NAMES = [
     "Abigail",
     "Emily",
     "Elizabeth",
-    "Alexander",
-    "Benjamin",
-    "Lucas",
-    "Henry",
-    "Daniel",
-    "Logan",
-    "Sophia",
-    "Mia",
-    "Amelia",
+    "Sofia",
+    "Avery",
     "Ella",
+    "Scarlett",
     "Grace",
     "Chloe",
     "Victoria",
+    "Riley",
+    "Aria",
+    "Lily",
+    "Aubrey",
+    "Zoey",
+    "Penelope",
+    "Layla",
+    "Lillian",
+    "Nora",
+    "Hannah",
+    "Addison",
+    "Willow",
+    "Stella",
+    "Natalie",
+    "Leah",
+    "Hazel",
+    "Violet",
+    "Aurora",
+    "Savannah",
+    "Audrey",
+    "Brooklyn",
+    "Bella",
+    "Claire",
+    "Skylar",
+    "Lucy",
+    "Paisley",
+    "Everly",
+    "Anna",
+    "Caroline",
+    "Nova",
+    "Genesis",
+    "Kennedy",
+    "Maya",
+    "Madelyn",
+    "Elena",
 ]
 
 LAST_NAMES = [
@@ -217,48 +491,176 @@ LAST_NAMES = [
     "Perez",
     "Thompson",
     "White",
+    "Harris",
+    "Sanchez",
+    "Clark",
+    "Ramirez",
+    "Lewis",
+    "Robinson",
+    "Walker",
+    "Young",
+    "Allen",
+    "King",
+    "Wright",
+    "Scott",
+    "Torres",
+    "Nguyen",
+    "Hill",
+    "Flores",
+    "Green",
+    "Adams",
+    "Nelson",
+    "Baker",
+    "Hall",
+    "Rivera",
+    "Campbell",
+    "Mitchell",
+    "Carter",
+    "Roberts",
+    "Gomez",
+    "Phillips",
+    "Evans",
+    "Turner",
+    "Diaz",
+    "Parker",
+    "Cruz",
+    "Edwards",
+    "Collins",
+    "Reyes",
+    "Stewart",
+    "Morris",
+    "Morales",
+    "Murphy",
+    "Cook",
+    "Rogers",
+    "Gutierrez",
+    "Ortiz",
+    "Morgan",
+    "Cooper",
+    "Peterson",
+    "Bailey",
+    "Reed",
+    "Kelly",
+    "Howard",
+    "Ramos",
+    "Kim",
+    "Cox",
+    "Ward",
+    "Richardson",
+    "Watson",
+    "Brooks",
+    "Chavez",
+    "Wood",
+    "James",
+    "Bennett",
+    "Gray",
+    "Mendoza",
+    "Ruiz",
+    "Hughes",
+    "Price",
+    "Alvarez",
+    "Castillo",
+    "Sanders",
+    "Patel",
+    "Myers",
+    "Long",
+    "Ross",
+    "Foster",
+    "Jimenez",
+    "Powell",
+    "Jenkins",
+    "Perry",
+    "Russell",
 ]
 
 
 def generate_random_email_prefix() -> str:
     """生成随机邮箱前缀，模拟真实用户命名习惯。"""
-    random_suffix = secrets.token_hex(3)
+    first, last = generate_realistic_name()
+    first = first.lower().replace(" ", "")
+    last = last.lower().replace(" ", "")
+
+    random_suffix = secrets.token_hex(random.randint(2, 4))
+    year_suffix = random.choice(
+        [
+            str(random.randint(1980, 2010)),
+            str(random.randint(1, 99)),
+            str(random.randint(10, 999)),
+        ]
+    )
+
     patterns = [
-        lambda: f"{random.choice(EMAIL_PREFIX_WORDS)}{random_suffix}",
+        lambda: f"{first}{random_suffix}",
+        lambda: f"{first}{year_suffix}",
+        lambda: f"{first}{random.choice(string.ascii_lowercase)}{random_suffix}",
+        lambda: f"{first}{random.choice('_-.')}{last}",
+        lambda: f"{first}{random.choice('_-.')}{last}{year_suffix}",
+        lambda: f"{first}{random.choice('_-.')}{random_suffix}",
+        lambda: f"{first}{year_suffix}{random_suffix}",
         lambda: (
-            f"{random.choice(EMAIL_PREFIX_WORDS)}{random.randint(1, 999)}{random_suffix}"
+            f"{first}{random.choice(string.ascii_lowercase * 3 + string.digits * 3)}"
+            f"{random.randint(1, 99)}"
         ),
-        lambda: (
-            f"{random.choice(EMAIL_PREFIX_WORDS)}{random.choice(EMAIL_PREFIX_WORDS)}{random_suffix}"
-        ),
-        lambda: (
-            f"{random.choice(EMAIL_PREFIX_WORDS)}{random.choice(string.ascii_lowercase)}{random.randint(1, 99)}{random_suffix}"
-        ),
-        lambda: "".join(
-            random.choices(
-                string.ascii_lowercase + string.digits, k=random.randint(10, 14)
-            )
-        ),
-        lambda: (
-            f"{random.choice(EMAIL_PREFIX_WORDS)}_{random.randint(1, 999)}{random_suffix}"
-        ),
-        lambda: (
-            f"{random.choice(EMAIL_PREFIX_WORDS)}.{random.choice(EMAIL_PREFIX_WORDS)}{random_suffix}"
-        ),
+        lambda: f"{first}{last[: random.randint(2, 4)]}",
+        lambda: f"{first}{random.choice('_.')}{last}{random.randint(1, 99)}",
+        lambda: f"{first}{last}{random.randint(1, 99)}",
+        lambda: f"{last}{random.choice('_.')}{first}",
     ]
     return random.choice(patterns)()
 
 
+def fetch_random_user_from_api() -> dict[str, str] | None:
+    try:
+        resp = requests.get(
+            "https://randomuser.me/api/",
+            params={"nat": "us,gb,ca,au", "inc": "name"},
+            timeout=8,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        result = data["results"][0]
+        return {
+            "first": result["name"]["first"],
+            "last": result["name"]["last"],
+        }
+    except Exception:
+        return None
+
+
+_cached_random_user: dict[str, str] | None = None
+
+
+def get_random_user() -> dict[str, str] | None:
+    global _cached_random_user
+    if _cached_random_user is None:
+        _cached_random_user = fetch_random_user_from_api()
+    return _cached_random_user
+
+
+def _add_name_variation(name: str) -> str:
+    r = random.random()
+    if r < 0.4:
+        return name
+    if r < 0.6:
+        return f"{name} {random.choice(FIRST_NAMES)}"
+    if r < 0.8:
+        return f"{name} {random.choice(string.ascii_uppercase)}"
+    return name
+
+
 def generate_realistic_name() -> tuple[str, str]:
-    """生成真实的姓名组合。"""
-    first = random.choice(FIRST_NAMES)
-    last = random.choice(LAST_NAMES)
+    user = get_random_user()
+    if user:
+        first = _add_name_variation(user["first"])
+        last = _add_name_variation(user["last"])
+        return first, last
+    first = _add_name_variation(random.choice(FIRST_NAMES))
+    last = _add_name_variation(random.choice(LAST_NAMES))
     return first, last
 
 
 def generate_random_birthdate() -> str:
-    """生成随机的合理生日 (1990-2005年之间)。"""
-    start_date = datetime(1990, 1, 1)
+    start_date = datetime(1950, 1, 1)
     end_date = datetime(2005, 12, 31)
     time_between = end_date - start_date
     days_between = time_between.days
@@ -272,49 +674,136 @@ def get_random_browser_fingerprint() -> str:
     return random.choice(BROWSER_FINGERPRINTS)
 
 
+def _extract_version_from_fingerprint(fingerprint: str) -> str:
+    fp_lower = fingerprint.lower()
+
+    version_patterns = [
+        (r"chrome(\d+)", "Chrome"),
+        (r"edge(\d+)", "Edge"),
+        (r"safari(\d+)", "Safari"),
+        (r"firefox(\d+)", "Firefox"),
+    ]
+
+    for pattern, browser in version_patterns:
+        match = re.search(pattern, fp_lower)
+        if match:
+            version = match.group(1)
+            if browser == "Safari":
+                return f"{version[:2]}.{version[2:]}" if len(version) >= 3 else version
+            return version
+
+    return (
+        "133"
+        if "chrome" in fp_lower
+        else "131"
+        if "safari" in fp_lower
+        else "135"
+        if "firefox" in fp_lower
+        else "133"
+    )
+
+
+def _build_sec_ch_ua(fingerprint: str, version: str) -> str:
+    fp_lower = fingerprint.lower()
+
+    if "edge" in fp_lower:
+        return f'"Not(A:Brand";v="99", "Microsoft Edge";v="{version}", "Chromium";v="{version}"'
+
+    if "safari" in fp_lower:
+        return f'"Not_A Brand";v="8", "Safari";v="{version}"'
+
+    if "firefox" in fp_lower:
+        return ""
+
+    return (
+        f'"Not(A:Brand";v="99", "Google Chrome";v="{version}", "Chromium";v="{version}"'
+    )
+
+
 def get_browser_headers(fingerprint: str) -> Dict[str, str]:
     """根据指纹类型返回对应的浏览器请求头。"""
-    chrome_headers = {
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
+    version = _extract_version_from_fingerprint(fingerprint)
+    fp_lower = fingerprint.lower()
+
+    platforms = ['"Windows"', '"macOS"', '"Linux"']
+    platform = random.choice(platforms)
+    is_mobile = "android" in fp_lower or "ios" in fp_lower
+
+    base_headers = {
+        "Accept-Language": random.choice(
+            [
+                "en-US,en;q=0.9",
+                "en-US,en;q=0.8",
+                "en-GB,en;q=0.9,en-US;q=0.8",
+                "en;q=0.9",
+            ]
+        ),
         "Accept-Encoding": "gzip, deflate, br",
-        "Sec-Ch-Ua": '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
+        "Cache-Control": random.choice(["max-age=0", "no-cache", "no-store"]),
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Upgrade-Insecure-Requests": "1",
+    }
+
+    accept_variants = [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    ]
+
+    if "chrome" in fp_lower or "edge" in fp_lower:
+        sec_ch_ua = _build_sec_ch_ua(fingerprint, version)
+        headers = {
+            **base_headers,
+            "Accept": random.choice(accept_variants),
+            "Sec-Ch-Ua": sec_ch_ua,
+            "Sec-Ch-Ua-Mobile": "?1" if is_mobile else "?0",
+            "Sec-Ch-Ua-Platform": platform,
+            "Sec-Fetch-User": "?1",
+            "Priority": random.choice(["u=0, i", "u=1, i"]),
+        }
+
+        if random.random() < 0.3:
+            headers["DNT"] = "1"
+
+        return headers
+
+    if "safari" in fp_lower:
+        return {
+            **base_headers,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        }
+
+    if "firefox" in fp_lower:
+        headers = {
+            **base_headers,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,*/*;q=0.8",
+            "Accept-Language": random.choice(
+                [
+                    "en-US,en;q=0.5",
+                    "en-US,en;q=0.7",
+                    "en-US;q=0.8",
+                ]
+            ),
+            "Sec-Fetch-User": "?1",
+            "TE": "trailers",
+        }
+
+        if random.random() < 0.5:
+            headers["DNT"] = "1"
+
+        return headers
+
+    return {
+        **base_headers,
+        "Accept": random.choice(accept_variants),
+        "Sec-Ch-Ua": _build_sec_ch_ua("chrome", version),
         "Sec-Ch-Ua-Mobile": "?0",
         "Sec-Ch-Ua-Platform": '"Windows"',
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "none",
         "Sec-Fetch-User": "?1",
-        "Upgrade-Insecure-Requests": "1",
     }
-
-    safari_headers = {
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "none",
-    }
-
-    firefox_headers = {
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "none",
-        "Sec-Fetch-User": "?1",
-        "Upgrade-Insecure-Requests": "1",
-    }
-
-    if "chrome" in fingerprint.lower() or "edge" in fingerprint.lower():
-        return chrome_headers.copy()
-    if "safari" in fingerprint.lower():
-        return safari_headers.copy()
-    if "firefox" in fingerprint.lower():
-        return firefox_headers.copy()
-    return chrome_headers.copy()
 
 
 # IMAP 支持
@@ -990,7 +1479,14 @@ def submit_callback_url(
 # ==========================================
 
 
+def human_delay(min_sec: float = 0.5, max_sec: float = 3.0):
+    time.sleep(random.uniform(min_sec, max_sec))
+
+
 def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
+    global _cached_random_user
+    _cached_random_user = None
+
     proxies: Any = None
     if proxy:
         proxies = {"http": proxy, "https": proxy}
@@ -1000,8 +1496,9 @@ def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
     print(f"[*] 使用浏览器指纹: {fingerprint}")
 
     s = requests.Session(proxies=proxies, impersonate=cast(Any, fingerprint))
-    # 设置全局请求头模拟真实浏览器
     s.headers.update(browser_headers)
+
+    human_delay(0.5, 2.0)
 
     try:
         trace = s.get("https://cloudflare.com/cdn-cgi/trace", timeout=10)
@@ -1044,6 +1541,8 @@ def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
         did = s.cookies.get("oai-did")
         print(f"[*] Device ID: {did}")
 
+        human_delay(0.8, 2.5)
+
         signup_body = f'{{"username":{{"value":"{email}","kind":"email"}},"screen_hint":"signup"}}'
         sen_req_body = f'{{"p":"","id":"{did}","flow":"authorize_continue"}}'
 
@@ -1070,6 +1569,8 @@ def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
         sen_token = sen_resp.json()["token"]
         sentinel = f'{{"p": "", "t": "", "c": "{sen_token}", "id": "{did}", "flow": "authorize_continue"}}'
 
+        human_delay(0.5, 1.5)
+
         signup_resp = s.post(
             "https://auth.openai.com/api/accounts/authorize/continue",
             headers={
@@ -1081,6 +1582,8 @@ def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
             data=signup_body,
         )
         print(f"[*] 提交注册表单状态: {signup_resp.status_code}")
+
+        human_delay(1.0, 3.0)
 
         otp_resp = s.post(
             "https://auth.openai.com/api/accounts/passwordless/send-otp",
@@ -1100,6 +1603,8 @@ def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
         if not code:
             return None
 
+        human_delay(0.8, 2.0)
+
         code_body = f'{{"code":"{code}"}}'
         code_resp = s.post(
             "https://auth.openai.com/api/accounts/email-otp/validate",
@@ -1111,6 +1616,8 @@ def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
             data=code_body,
         )
         print(f"[*] 验证码校验状态: {code_resp.status_code}")
+
+        human_delay(1.5, 4.0)
 
         first_name, last_name = generate_realistic_name()
         full_name = f"{first_name} {last_name}"
@@ -1131,6 +1638,8 @@ def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
         if create_account_status != 200:
             print(create_account_resp.text)
             return None
+
+        human_delay(0.8, 2.0)
 
         auth_cookie = s.cookies.get("oai-client-auth-session")
         if not auth_cookie:
@@ -1161,6 +1670,8 @@ def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
             print(f"[Error] 选择 workspace 失败，状态码: {select_resp.status_code}")
             print(select_resp.text)
             return None
+
+        human_delay(1.0, 2.5)
 
         continue_url = str((select_resp.json() or {}).get("continue_url") or "").strip()
         if not continue_url:
