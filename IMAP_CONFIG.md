@@ -32,7 +32,7 @@
 | `imap_oauth2_client_id` | string | OAuth2 Client ID（用于自动刷新 Token） |
 | `imap_oauth2_client_secret` | string | OAuth2 Client Secret（Azure AD 机密客户端需要） |
 | `imap_oauth2_tenant_id` | string | OAuth2 Tenant ID（Azure AD 需要，如 Outlook） |
-| `email_prefix` | string | 注册邮箱前缀，生成格式为 `{prefix}XXXXX@domain` |
+| `email_prefix` | string | 注册邮箱前缀，生成格式为 `{prefix}{uuid}@domain` |
 
 ## 认证模式
 

@@ -77,7 +77,7 @@ def generate_imap_email(config: Dict[str, Any]) -> str:
     """基于配置生成随机 IMAP 邮箱地址。"""
     domain = config.get("domain", "example.com")
     prefix = config.get("email_prefix", "auto")
-    random_suffix = "".join(random.choices(string.digits, k=5))
+    random_suffix = uuid.uuid4().hex
     return f"{prefix}{random_suffix}@{domain}"
 
 
