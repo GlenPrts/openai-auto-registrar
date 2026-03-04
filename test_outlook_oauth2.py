@@ -157,10 +157,11 @@ def refresh_outlook_token(cfg):
     data = {
         "grant_type": "refresh_token",
         "client_id": client_id,
-        "client_secret": client_secret,
         "refresh_token": refresh_token,
         "scope": "https://outlook.office.com/IMAP.AccessAsUser.All offline_access",
     }
+    if client_secret:
+        data["client_secret"] = client_secret
 
     print(f"  🔄 请求 URL: {token_url[:50]}...")
     print(f"  🔄 Client ID: {client_id[:20]}...")
@@ -171,7 +172,20 @@ def refresh_outlook_token(cfg):
 
         if resp.status_code != 200:
             print(f"❌ Token 刷新失败")
-            print(f"   响应: {resp.text[:500]}")
+            detail = ""
+            try:
+                err_data = resp.json()
+                err = str(err_data.get("error") or "").strip()
+                desc = str(err_data.get("error_description") or "").strip()
+                if err:
+                    detail = err
+                if desc:
+                    detail = f"{detail}: {desc}" if detail else desc
+            except Exception:
+                detail = str(resp.text or "")[:500]
+
+            if detail:
+                print(f"   响应: {detail}")
             return False
 
         token_data = resp.json()

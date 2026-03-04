@@ -63,6 +63,16 @@ def load_imap_config() -> Optional[Dict[str, Any]]:
         return None
 
 
+def save_imap_config(config: Dict[str, Any]) -> bool:
+    try:
+        with open(IMAP_CONFIG_PATH, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=4, ensure_ascii=False)
+        return True
+    except Exception as e:
+        print(f"[Warning] 保存 IMAP 配置失败: {e}")
+        return False
+
+
 def generate_imap_email(config: Dict[str, Any]) -> str:
     """基于配置生成随机 IMAP 邮箱地址。"""
     domain = config.get("domain", "example.com")
@@ -191,19 +201,48 @@ def refresh_outlook_token(config: Dict[str, Any]) -> Optional[str]:
     data = {
         "grant_type": "refresh_token",
         "client_id": client_id,
-        "client_secret": client_secret,
         "refresh_token": refresh_token,
         "scope": "https://outlook.office.com/IMAP.AccessAsUser.All offline_access",
     }
+    if client_secret:
+        data["client_secret"] = client_secret
 
     try:
-        resp = requests.post(token_url, json=data, timeout=30)
+        resp = requests.post(token_url, data=data, timeout=30)
         if resp.status_code != 200:
+            detail = ""
+            try:
+                err_data = resp.json()
+                err = str(err_data.get("error") or "").strip()
+                desc = str(err_data.get("error_description") or "").strip()
+                if err:
+                    detail = err
+                if desc:
+                    detail = f"{detail}: {desc}" if detail else desc
+            except Exception:
+                detail = str(resp.text or "")[:240]
+
             print(f"[Error] Token 刷新失败: {resp.status_code}")
+            if detail:
+                print(f"[Error] Token 刷新详情: {detail}")
             return None
 
         token_data = resp.json()
-        return token_data.get("access_token")
+        access_token = str(token_data.get("access_token") or "").strip()
+        if not access_token:
+            print("[Error] 刷新成功但未返回 access_token")
+            return None
+
+        config["imap_oauth2_token"] = access_token
+        expires_in = int(token_data.get("expires_in") or 3600)
+        config["imap_oauth2_token_expires_at"] = int(time.time()) + expires_in
+
+        new_refresh_token = str(token_data.get("refresh_token") or "").strip()
+        if new_refresh_token:
+            config["imap_oauth2_refresh_token"] = new_refresh_token
+
+        save_imap_config(config)
+        return access_token
     except Exception as e:
         print(f"[Error] Token 刷新异常: {e}")
         return None
@@ -325,11 +364,13 @@ def get_code_from_imap(config: Dict[str, Any], email: str, proxies: Any = None) 
                     code = match.group(1)
                     print(f" 抓到啦! 验证码: {code}")
                     # 删除邮件
-                    try:
-                        mailbox.delete(msg.uid)
-                        mailbox.client.expunge()
-                    except Exception:
-                        pass
+                    uid = msg.uid
+                    if uid:
+                        try:
+                            mailbox.delete(uid)
+                            mailbox.client.expunge()
+                        except Exception as e:
+                            print(f"[Warning] 删除验证码邮件失败: {e}")
                     return code
 
             time.sleep(3)
