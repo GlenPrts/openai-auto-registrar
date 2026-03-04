@@ -16,7 +16,7 @@ import imaplib
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlparse, parse_qs, urlencode, quote
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 import urllib.parse
 import urllib.request
 import urllib.error
@@ -25,6 +25,297 @@ from curl_cffi import requests
 
 # Token 保存目录
 TOKEN_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tokens")
+
+# ==========================================
+# 动态获取 curl_cffi 支持的浏览器指纹
+# ==========================================
+
+
+def get_supported_fingerprints() -> list[str]:
+    """从 curl_cffi 源代码动态获取支持的浏览器指纹列表。"""
+    try:
+        from curl_cffi.requests.impersonate import BrowserType
+
+        # 从 Enum 获取所有支持的指纹，排除别名
+        aliases = {
+            "chrome",
+            "edge",
+            "safari",
+            "safari_ios",
+            "safari_beta",
+            "safari_ios_beta",
+            "chrome_android",
+            "firefox",
+            "tor",
+        }
+        fingerprints = []
+        for browser in BrowserType:
+            name = browser.value
+            # 排除别名和移动端（可选）
+            if name not in aliases and "_android" not in name and "_ios" not in name:
+                fingerprints.append(name)
+        return fingerprints if fingerprints else ["chrome", "chrome110"]
+    except Exception:
+        # 兜底方案：使用已知的常用指纹
+        return [
+            "chrome",
+            "chrome110",
+            "chrome116",
+            "chrome119",
+            "chrome120",
+            "chrome124",
+            "chrome131",
+            "chrome133a",
+            "edge99",
+            "edge101",
+            "safari153",
+            "safari155",
+            "safari170",
+            "safari180",
+            "firefox133",
+            "firefox135",
+        ]
+
+
+# 动态获取指纹列表（在模块加载时执行一次）
+BROWSER_FINGERPRINTS = get_supported_fingerprints()
+
+# ==========================================
+# 邮箱前缀词汇库 - 用于生成真实的邮箱前缀
+# ==========================================
+EMAIL_PREFIX_WORDS = [
+    "alex",
+    "john",
+    "mike",
+    "david",
+    "chris",
+    "james",
+    "robert",
+    "daniel",
+    "michael",
+    "william",
+    "richard",
+    "joseph",
+    "thomas",
+    "charles",
+    "emma",
+    "olivia",
+    "ava",
+    "sophia",
+    "mia",
+    "isabella",
+    "amelia",
+    "harper",
+    "evelyn",
+    "abigail",
+    "ella",
+    "scarlett",
+    "grace",
+    "tech",
+    "code",
+    "dev",
+    "data",
+    "ai",
+    "ml",
+    "cloud",
+    "web",
+    "studio",
+    "hub",
+    "lab",
+    "space",
+    "zone",
+    "base",
+    "core",
+    "user",
+    "admin",
+    "test",
+    "demo",
+    "beta",
+    "alpha",
+    "prod",
+    "hello",
+    "hi",
+    "hey",
+    "yo",
+    "sup",
+    "greetings",
+    "welcome",
+    "cool",
+    "nice",
+    "awesome",
+    "great",
+    "super",
+    "ultra",
+    "mega",
+]
+
+# 常见名字库
+FIRST_NAMES = [
+    "James",
+    "John",
+    "Robert",
+    "Michael",
+    "William",
+    "David",
+    "Richard",
+    "Joseph",
+    "Thomas",
+    "Charles",
+    "Daniel",
+    "Matthew",
+    "Anthony",
+    "Emma",
+    "Olivia",
+    "Ava",
+    "Sophia",
+    "Isabella",
+    "Mia",
+    "Charlotte",
+    "Amelia",
+    "Harper",
+    "Evelyn",
+    "Abigail",
+    "Emily",
+    "Elizabeth",
+    "Alexander",
+    "Benjamin",
+    "Lucas",
+    "Henry",
+    "Daniel",
+    "Logan",
+    "Sophia",
+    "Mia",
+    "Amelia",
+    "Ella",
+    "Grace",
+    "Chloe",
+    "Victoria",
+]
+
+LAST_NAMES = [
+    "Smith",
+    "Johnson",
+    "Williams",
+    "Brown",
+    "Jones",
+    "Garcia",
+    "Miller",
+    "Davis",
+    "Rodriguez",
+    "Martinez",
+    "Hernandez",
+    "Lopez",
+    "Gonzalez",
+    "Wilson",
+    "Anderson",
+    "Thomas",
+    "Taylor",
+    "Moore",
+    "Jackson",
+    "Martin",
+    "Lee",
+    "Perez",
+    "Thompson",
+    "White",
+]
+
+
+def generate_random_email_prefix() -> str:
+    """生成随机邮箱前缀，模拟真实用户命名习惯。"""
+    random_suffix = secrets.token_hex(3)
+    patterns = [
+        lambda: f"{random.choice(EMAIL_PREFIX_WORDS)}{random_suffix}",
+        lambda: (
+            f"{random.choice(EMAIL_PREFIX_WORDS)}{random.randint(1, 999)}{random_suffix}"
+        ),
+        lambda: (
+            f"{random.choice(EMAIL_PREFIX_WORDS)}{random.choice(EMAIL_PREFIX_WORDS)}{random_suffix}"
+        ),
+        lambda: (
+            f"{random.choice(EMAIL_PREFIX_WORDS)}{random.choice(string.ascii_lowercase)}{random.randint(1, 99)}{random_suffix}"
+        ),
+        lambda: "".join(
+            random.choices(
+                string.ascii_lowercase + string.digits, k=random.randint(10, 14)
+            )
+        ),
+        lambda: (
+            f"{random.choice(EMAIL_PREFIX_WORDS)}_{random.randint(1, 999)}{random_suffix}"
+        ),
+        lambda: (
+            f"{random.choice(EMAIL_PREFIX_WORDS)}.{random.choice(EMAIL_PREFIX_WORDS)}{random_suffix}"
+        ),
+    ]
+    return random.choice(patterns)()
+
+
+def generate_realistic_name() -> tuple[str, str]:
+    """生成真实的姓名组合。"""
+    first = random.choice(FIRST_NAMES)
+    last = random.choice(LAST_NAMES)
+    return first, last
+
+
+def generate_random_birthdate() -> str:
+    """生成随机的合理生日 (1990-2005年之间)。"""
+    start_date = datetime(1990, 1, 1)
+    end_date = datetime(2005, 12, 31)
+    time_between = end_date - start_date
+    days_between = time_between.days
+    random_days = random.randint(0, days_between)
+    birth_date = start_date + timedelta(days=random_days)
+    return birth_date.strftime("%Y-%m-%d")
+
+
+def get_random_browser_fingerprint() -> str:
+    """随机获取一个浏览器 TLS 指纹。"""
+    return random.choice(BROWSER_FINGERPRINTS)
+
+
+def get_browser_headers(fingerprint: str) -> Dict[str, str]:
+    """根据指纹类型返回对应的浏览器请求头。"""
+    chrome_headers = {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Sec-Ch-Ua": '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
+        "Sec-Ch-Ua-Mobile": "?0",
+        "Sec-Ch-Ua-Platform": '"Windows"',
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": "1",
+    }
+
+    safari_headers = {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+    }
+
+    firefox_headers = {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": "1",
+    }
+
+    if "chrome" in fingerprint.lower() or "edge" in fingerprint.lower():
+        return chrome_headers.copy()
+    if "safari" in fingerprint.lower():
+        return safari_headers.copy()
+    if "firefox" in fingerprint.lower():
+        return firefox_headers.copy()
+    return chrome_headers.copy()
+
 
 # IMAP 支持
 IMAP_TOOLS_AVAILABLE = False
@@ -76,9 +367,12 @@ def save_imap_config(config: Dict[str, Any]) -> bool:
 def generate_imap_email(config: Dict[str, Any]) -> str:
     """基于配置生成随机 IMAP 邮箱地址。"""
     domain = config.get("domain", "example.com")
-    prefix = config.get("email_prefix", "auto")
-    random_suffix = uuid.uuid4().hex
-    return f"{prefix}{random_suffix}@{domain}"
+    # 不再使用固定前缀，改用随机生成
+    if config.get("email_prefix"):
+        prefix = config.get("email_prefix")
+        random_suffix = secrets.token_hex(4)  # 缩短随机部分
+        return f"{prefix}{random_suffix}@{domain}"
+    return f"{generate_random_email_prefix()}@{domain}"
 
 
 # ==========================================
@@ -139,7 +433,7 @@ def get_email_and_token(proxies: Any = None) -> tuple[str, str]:
         domain = random.choice(domains)
 
         for _ in range(5):
-            local = f"oc{secrets.token_hex(5)}"
+            local = generate_random_email_prefix()
             email = f"{local}@{domain}"
             password = secrets.token_urlsafe(18)
 
@@ -701,7 +995,13 @@ def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
     if proxy:
         proxies = {"http": proxy, "https": proxy}
 
-    s = requests.Session(proxies=proxies, impersonate="chrome")
+    fingerprint = get_random_browser_fingerprint()
+    browser_headers = get_browser_headers(fingerprint)
+    print(f"[*] 使用浏览器指纹: {fingerprint}")
+
+    s = requests.Session(proxies=proxies, impersonate=cast(Any, fingerprint))
+    # 设置全局请求头模拟真实浏览器
+    s.headers.update(browser_headers)
 
     try:
         trace = s.get("https://cloudflare.com/cdn-cgi/trace", timeout=10)
@@ -747,16 +1047,19 @@ def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
         signup_body = f'{{"username":{{"value":"{email}","kind":"email"}},"screen_hint":"signup"}}'
         sen_req_body = f'{{"p":"","id":"{did}","flow":"authorize_continue"}}'
 
+        sen_headers = {
+            "origin": "https://sentinel.openai.com",
+            "referer": "https://sentinel.openai.com/backend-api/sentinel/frame.html?sv=20260219f9f6",
+            "content-type": "text/plain;charset=UTF-8",
+        }
+        sen_headers.update(browser_headers)
+
         sen_resp = requests.post(
             "https://sentinel.openai.com/backend-api/sentinel/req",
-            headers={
-                "origin": "https://sentinel.openai.com",
-                "referer": "https://sentinel.openai.com/backend-api/sentinel/frame.html?sv=20260219f9f6",
-                "content-type": "text/plain;charset=UTF-8",
-            },
+            headers=sen_headers,
             data=sen_req_body,
             proxies=proxies,
-            impersonate="chrome",
+            impersonate=cast(Any, fingerprint),
             timeout=15,
         )
 
@@ -809,7 +1112,10 @@ def run(proxy: Optional[str], email_mode: str = "mailtm") -> Optional[str]:
         )
         print(f"[*] 验证码校验状态: {code_resp.status_code}")
 
-        create_account_body = '{"name":"Neo","birthdate":"2000-02-20"}'
+        first_name, last_name = generate_realistic_name()
+        full_name = f"{first_name} {last_name}"
+        birthdate = generate_random_birthdate()
+        create_account_body = json.dumps({"name": full_name, "birthdate": birthdate})
         create_account_resp = s.post(
             "https://auth.openai.com/api/accounts/create_account",
             headers={
